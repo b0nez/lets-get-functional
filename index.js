@@ -1,11 +1,11 @@
 'use strict';
 
 const customers = require("./data/customers.json");
-const lodown = require('lodown-jmenkin')
+const lodown = require('lodown-jmenkin');
 
 
 // Number of Males
-function numMales (arr) {
+function numMales(arr) {
     return lodown.filter(arr, function (customer){ 
         return customer.gender === "male";
     }).length;
@@ -23,7 +23,7 @@ console.log("Number of Females: " + numFemales(customers));
 
 
 // Oldest Customer
-function oldestCustomer (){
+function oldestCustomer(){
     var ages = lodown.pluck(customers, "age");
     var index;
     lodown.reduce(ages, function(oldest, next, i){
@@ -42,10 +42,10 @@ console.log("Oldest Customer: " + oldestCustomer());
 function youngestCustomer() {
     var ages = lodown.pluck(customers, "age");
     var index;
-    lodown.reduce(ages, function(youngest, challenger, i){
-        if (challenger < youngest){
+    lodown.reduce(ages, function(youngest, next, i){
+        if (next < youngest){
             index = i;
-            return challenger;
+            return next;
         }
         return youngest;
     });
@@ -55,7 +55,7 @@ console.log("Youngest Customer: " + youngestCustomer());
 
 
 // Average Balance
-function averageBalance (){
+function averageBalance(){
     var balances = lodown.pluck(customers, "balance");
     balances = lodown.map(balances, function(elem, i, balances){
         var value = elem.slice(1);
@@ -70,19 +70,30 @@ function averageBalance (){
 }
 console.log("Average Balance: $" + averageBalance());
 
+
 // Customer Names that Begin With ...
-function customerName(collection, letter) {
-    var results = lodown.filter(collection, function(customer) {
-        return customer.name.charAt(0) == letter;
-    }).length;
-    console.log("Customer Names that Being with " + letter + ": " + results);
+function customerName(collection) {
+    var AtoZ = [];
+    //Creates A to Z Array from ASCII Code
+    for (var i = 65; i < 91; i++) {
+        AtoZ.push(String.fromCharCode(i));
+    }
+    // Runs filter on Every Letter A to Z 
+    for (var j = 0; j < AtoZ.length; j++) {
+        var results = lodown.filter(collection, function(customer) {
+            return customer.name.charAt(0) == AtoZ[j];
+        }).length;
+        if(results) {
+            console.log("Customer Names that Begin with " + AtoZ[j] + ": " + results);
+        }
+    }
 }
-customerName(customers, "D");
+customerName(customers);
 
 
-// Customer Friends Names That Being With...
-function customerFriendName(arr, letter) {
-    let friends = lodown.map(arr, function(customer){
+// Customer Friends Names That Being With...(Takes Letter Argument)
+function customerFriendName(collection, letter) {
+    var friends = lodown.map(collection, function(customer){
         return customer.friends;
     });
     var merged = [].concat.apply([], friends);
@@ -96,7 +107,7 @@ customerFriendName(customers, "D");
 
 // Number of Customer Friends
 function customerFriends() {
-    let numFriends = 0;
+    var numFriends = 0;
     lodown.each(customers, function(customer){
         lodown.each(customer.friends, function(friend){
             lodown.each(customers, function(customerJ){
@@ -110,29 +121,29 @@ console.log("Number of Customers That Are Friends: " + customerFriends());
 
 
 // Top Three Tags
-function topTags (amount) {
-    let allTags = [];
+function topTags(amount) {
+    var allTags = [];
     lodown.each(customers, function(customer){
-       lodown.each(customer.tags, function(tag){
-           allTags.push(tag);
-       });
+      lodown.each(customer.tags, function(tag){
+          allTags.push(tag);
+      });
     });
-    let uniques = lodown.unique(allTags);
-    let uniqueCount = [];
+    var uniques = lodown.unique(allTags);
+    var uniqueCount = [];
     lodown.each(uniques, function(uniqueTag){
-        let counter = 0;
+        var counter = 0;
         lodown.each(allTags, function(tag){
             if(tag === uniqueTag) counter++;
         });
         uniqueCount.push(counter);
     });
-    let results = [];
+    var results = [];
     while (results.length < amount){
-        let index = 0;
-        lodown.reduce(uniqueCount, function(max, challenger, i){
-            if(max < challenger){
+        var index = 0;
+        lodown.reduce(uniqueCount, function(max, next, i){
+            if(max < next){
                 index = i;
-                return challenger;
+                return next;
             }
             return max;
         });
@@ -160,3 +171,4 @@ function countByGender(arr) {
     }, {});
 }
 console.log("Summary of Genders: ", countByGender(customers));
+
